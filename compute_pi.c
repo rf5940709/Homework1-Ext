@@ -40,6 +40,17 @@ double compute_pi_Baseline_avx(size_t dt)
 
     return pi * 4.0;
 }
+double compute_pi_Gregory(size_t dt)
+{
+    double pi = 1;
+    for (size_t i = 1; i < dt; i++) {
+        if(i%2==1)
+            pi -= (1/(double)((i*2)+1));
+        else
+            pi += (1/(double)((i*2)+1));
+    }
+    return pi * 4.0;
+}
 int main(int argc, char *argv[])
 {
     size_t n = atoi(argv[1]);
@@ -59,5 +70,13 @@ int main(int argc, char *argv[])
     time = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
     printf("execution time of compute_pi_Baseline_avx()  : %lf sec\n", time);
+
+    begin = clock();
+    value = compute_pi_Gregory(n * 1024*1024);
+    end = clock();
+    time = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
+    printf("execution time of compute_pi_Gregory()       : %lf sec\n", time);
+
     return 0;
 }
