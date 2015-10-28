@@ -1,1 +1,2 @@
-# Homework1-Ext
+make
+./compute_pi 128
