@@ -58,6 +58,17 @@ double compute_pi_Euler(size_t dt)
         pi += (1/((double)i*(double)i));
     return sqrt(pi*6);
 }
+double compute_pi_Wallis(size_t dt)
+{
+    double pi = 1;
+    for (size_t i = 1; i < dt; i++) {
+        if(i%2==1)
+            pi *= (((double)i+1)/(double)i);
+        else
+            pi *= ((double)i/((double)i+1));
+    }
+    return pi * 2;
+}
 int main(int argc, char *argv[])
 {
     size_t n = atoi(argv[1]);
@@ -91,6 +102,13 @@ int main(int argc, char *argv[])
     time = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
     printf("execution time of compute_pi_Euler()         : %lf sec\n", time);
+
+    begin = clock();
+    value = compute_pi_Wallis(n * 1024*1024);
+    end = clock();
+    time = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
+    printf("execution time of compute_pi_Wallis()        : %lf sec\n", time);
 
     return 0;
 }
