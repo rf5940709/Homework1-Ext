@@ -69,6 +69,28 @@ double compute_pi_Wallis(size_t dt)
     }
     return pi * 2;
 }
+double compute_pi_Gregory_avx(size_t dt)
+{
+    double pi = 0.0;
+    register __m256d ymm0, ymm1, ymm2, ymm3, ymm4;
+    ymm0 = _mm256_set1_pd(1.0);
+    ymm1 = _mm256_set1_pd(2.0);
+    ymm2 = _mm256_set_pd(1.0, -1.0, 1.0, -1.0);
+    ymm4 = _mm256_setzero_pd();
+
+    for (int i = 0; i <= dt - 4; i += 4) {
+        ymm3 = _mm256_set_pd(i, i+1.0, i+2.0, i+3.0);
+        ymm3 = _mm256_mul_pd(ymm3, ymm1);//x=i*2
+        ymm3 = _mm256_add_pd(ymm0, ymm3);//x++
+        ymm3 = _mm256_div_pd(ymm2, ymm3);//x=1/x or -1/x
+        ymm4 = _mm256_add_pd(ymm4, ymm3);//pi=pi+x
+    }
+    double tmp[4] __attribute__((aligned(32)));
+    _mm256_store_pd(tmp, ymm4);
+    pi += tmp[0] + tmp[1] + tmp[2] + tmp[3];
+
+    return pi * 4.0;
+}
 int main(int argc, char *argv[])
 {
     size_t n = atoi(argv[1]);
@@ -95,6 +117,13 @@ int main(int argc, char *argv[])
     time = (double)(end - begin) / CLOCKS_PER_SEC;
     printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
     printf("execution time of compute_pi_Gregory()       : %lf sec\n", time);
+
+    begin = clock();
+    value = compute_pi_Gregory_avx(n * 1024*1024);
+    end = clock();
+    time = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("compult_pi loop : %zu MB, vaile : %lf \n", n, value);
+    printf("execution time of compute_pi_Gregory_avx()   : %lf sec\n", time);
 
     begin = clock();
     value = compute_pi_Euler(n * 1024*1024);
